@@ -1,0 +1,117 @@
+{%extends './base.html'%}
+{%load static%}
+{%load custom_tags%}
+{%block ExtraCSS%}
+
+{%endblock%}
+
+{%block content%}
+<section class="wrapper">
+  <!-- Row title -->
+  <main class="row title">
+    <ul>
+      <li class="checked">Completed</li>
+      <li>TODO</li>
+      <li class="time">Time</li>
+      <li>Priority</li>
+      <li>
+        <i class="fas fa-bell"></i>
+        <select name="alarm" id="alarm-field" required>
+          {% for alarm in alarms %}
+            <option value="{{alarm.file.url}}" data-name="{{alarm.name}}">{{alarm.name}}</option>
+          {% endfor %}
+        </select>
+      </li>
+      <!-- <li><span class="title-hide">#</span> Entries</li> -->
+    </ul>
+  </main>
+  <!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !!!!!!!!!MAIN CONTENT!!!!!!!
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+  {%for todo in todos%}
+  <article class="row {% get_color %}">
+    <div class="alarm-time hidden" data-time="{{todo.time.timestamp}}"></div>
+    <ul class="inner-row">
+      <li class="checked">
+        <div class="loader center hidden"><span></span></div>
+        {%if todo.checked == True%}
+          <input type="checkbox" name="checked" class="todo-checked" data-url="{%url 'core:TodoApiView' %}"
+            data-id="{{todo.id}}" checked>
+        {%else%}
+          <input type="checkbox" name="checked" class="todo-checked" data-url="{%url 'core:TodoApiView' %}"
+            data-id="{{todo.id}}">
+        {%endif%}
+      </li>
+
+      {%if todo.checked == True%}
+        <li class="name line-through">{{todo.name}}</li>
+      {%else%}
+        <li class="name">{{todo.name}}</li>
+      {%endif%}
+
+      <li class="time">{{todo.time}}</li>
+
+      {%if todo.priority == "H"%}
+        <li class="priority-high">
+      {%elif todo.priority == "M"%}
+        <li class="priority-medium">
+      {%elif todo.priority == "L"%}
+        <li class="priority-low">
+      {%endif%}
+          {{todo.get_priority_display}}
+        </li>
+      <!-- <li>48</li>
+          <li>12:00ET</li> -->
+    </ul>
+    <ul class="more-content">
+      <li>{{todo.description}}</li>
+    </ul>
+  </article>
+  {%endfor%}
+
+  <article class="row row-form hidden {% get_color %}">
+    <form id="form" data-url="{%url 'core:TodoApiView' %}">
+      <ul class="inner-row">
+        <li>
+          <input type="submit" value="Submit">
+          {% comment %} <div class="loader center hidden"><span></span></div> {% endcomment %}
+          {% comment %} <input type="checkbox" name="checked" class="todo-checked" data-url="{%url 'TodoApiView' %}" data-id="{{todo.id}}"> {% endcomment %}
+        </li>
+
+        <li>
+          <input type="text" name="name" placeholder="Name" required>
+        </li>
+        <li class="time">
+          <input type="datetime-local" id="datefield" name="time" required>
+        </li>
+        <li>
+          <select name="priority" id="priority-field" required>
+            <option value="H">High</option>
+            <option value="M">Medium</option>
+            <option value="L">Low</option>
+          </select>
+        </li>
+      </ul>
+      <ul class="more-content">
+        <li>
+          <textarea name="description" id="description" cols="60" rows="10" placeholder="Description" required></textarea>
+        </li>
+      </ul>
+    </form>
+  </article>
+
+  <article id="row-add">
+    <p>
+      +
+    </p>
+  </article>
+
+</section>
+{%endblock%}
+
+
+
+{%block ExtraJS%}
+<script src="{%static 'js/todo.js'%}"></script>
+<script src="{%static 'js/alarm.js'%}"></script>
+{%endblock%}
