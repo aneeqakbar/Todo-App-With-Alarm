@@ -30,7 +30,7 @@
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
   {%for todo in todos%}
   <article class="row {% get_color %}">
-    <div class="alarm-time hidden" data-time="{{todo.time.timestamp}}"></div>
+    <div class="alarm-time hidden" data-time="{{todo.time.timestamp}}" data-title="{{todo.title}}"></div>
     <ul class="inner-row">
       <li class="checked">
         <div class="loader center hidden"><span></span></div>

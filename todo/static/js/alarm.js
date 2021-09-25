@@ -54,6 +54,7 @@ setInterval(() => {
     alarm_times.forEach(element => {
         let timestamp = new Date().getTime();
         let alarm_timestamp = element.getAttribute('data-time')
+        let todo_title = element.getAttribute('data-title')
 
         timestamp += Math.abs(new Date().getTimezoneOffset() * 60000) // this gets the difference between local TZ and UTC in ms
 
@@ -61,6 +62,11 @@ setInterval(() => {
             console.log(`Alarm Time for ${element}`)
             source.loop = true;
             source.start();
+            let newNotification = createNotification("AWSM Routine Maker",`Hey, your todo: (${todo_title}) in timed up!`)
+            newNotification.onclose = ()=>{
+                source.stop();
+                console.log("closed")
+            };
             element.setAttribute('data-time', 'alarmed')
         }
     })

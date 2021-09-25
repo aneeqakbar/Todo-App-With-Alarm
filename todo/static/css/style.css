@@ -660,3 +660,18 @@ ul.more-content li {
 .priority-medium{
   background-color: #F4B400;
 }
+
+#notify-btn{
+  position: fixed; bottom: 20px; right: 20px;
+  padding: 10px 5px;
+  color: #fff;
+  border: solid 2px #fff;
+  border-radius: 3px;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.26);
+  transition: all .2s linear;
+}
+#notify-btn:hover{
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
