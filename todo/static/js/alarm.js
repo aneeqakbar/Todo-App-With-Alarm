@@ -1,4 +1,5 @@
-let alarm_times = document.querySelectorAll(".alarm-time");
+let alarms = document.querySelectorAll(".alarm-time");
+let alarm_row = document.querySelectorAll(".row-alarm");
 
 // Initialize the Alarm Audio
 const alarmCtx = new AudioContext();
@@ -43,35 +44,56 @@ document.getElementById('alarm-field').addEventListener('change', (event) => {
 
 
 // Filter the to_be_alarmed elements
-alarm_times = Array.from(alarm_times).filter(elem => {
+alarms_not_timed = Array.from(alarms).filter(elem => {
     let alarm_timestamp = elem.getAttribute('data-time')
     let timestamp = new Date().getTime() + Math.abs(new Date().getTimezoneOffset() * 60000)
-    return Math.floor(alarm_timestamp) > Math.floor(timestamp / 1000)
+    if (Math.floor(alarm_timestamp) < Math.floor(timestamp / 1000)) {
+        elem.setAttribute('data-time', 'alarmed');
+        return false
+    }
+    return true
 })
 
 // Checks for alarming every second
 setInterval(() => {
-    alarm_times.forEach(element => {
+    alarms_not_timed.forEach((element,index) => {
         let timestamp = new Date().getTime();
         let alarm_timestamp = element.getAttribute('data-time')
         let todo_title = element.getAttribute('data-title')
 
         timestamp += Math.abs(new Date().getTimezoneOffset() * 60000) // this gets the difference between local TZ and UTC in ms
-
+        console.log(
+            Math.floor(alarm_timestamp) ,Math.floor(timestamp / 1000)
+        )
         if (Math.floor(alarm_timestamp) === Math.floor(timestamp / 1000)) {
             console.log(`Alarm Time for ${element}`)
             source.loop = true;
             source.start();
-            let newNotification = createNotification("AWSM Routine Maker",`Hey, your todo: (${todo_title}) in timed up!`)
-            newNotification.onclose = ()=>{
+            let newNotification = createNotification("ARM (Times UP)!",`Hey, your todo: (${todo_title}) in timed up!`)
+            // newNotification.onclose = ()=>{
+            //     console.log("closed")
+            //     source.stop();
+            // };
+            setTimeout(() => {
                 source.stop();
-                console.log("closed")
-            };
+            }, 10000);
             element.setAttribute('data-time', 'alarmed')
+            updateTimedAlarms();
         }
     })
 }, 1000);
 
+updateTimedAlarms()
+function updateTimedAlarms() {
+    alarms_timed = Array.from(alarms).filter(elem => {
+        let alarm_timestamp = elem.getAttribute('data-time')
+        return alarm_timestamp === "alarmed";
+    })
+    console.log(alarms_timed,alarms_not_timed)
+    alarms_timed.forEach((element,index) => {
+        alarm_row[index].classList.toggle('row-timed', true);
+    });
+}
 
 
 function fetchAlarm(audioCtx, url) {
@@ -97,6 +119,24 @@ function fetchAlarm(audioCtx, url) {
         }
     });
 }
+
+
+
+
+document.querySelector("#notification-model .close-btn").addEventListener('click',(event)=>{
+    try {
+        source.stop();
+    } catch (e) {
+        console.log('Alarm already closed.')
+    }
+    document.querySelector("#notification-model").classList.toggle("hidden",true);
+})
+
+
+
+
+
+
 
 
 

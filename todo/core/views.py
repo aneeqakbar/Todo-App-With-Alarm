@@ -71,6 +71,12 @@ class TodoApiView(APIView):
         serializer = TodoSerializer(todo)
         return Response(serializer.data,status.HTTP_200_OK)
 
+    def delete(self,request):
+        data = json.loads(request.body)
+        todo = get_object_or_404(Todo,id=data['id'])
+        todo.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+
 class RoutineApiView(APIView):
 
     def post(self,request):

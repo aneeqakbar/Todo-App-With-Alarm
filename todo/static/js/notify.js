@@ -52,6 +52,12 @@ function createNotification(title, text, icon = null) {
         }
     }
     n = new Notification(title, { body: text, icon: icon })
+
+    let notification_model = document.querySelector("#notification-model");
+    notification_model.querySelector(".notification-title").innerHTML = `${title}`;
+    notification_model.querySelector(".description").innerHTML = `${text}`;
+    notification_model.classList.toggle("hidden",false);
+
     setTimeout(()=>{
         autoClose(n);
     },15000)
@@ -61,12 +67,12 @@ function createNotification(title, text, icon = null) {
 
 // Close Notification
 
-document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-        // The tab has become visible so clear the now-stale Notification.
-        n.close();
-    }
-});
+// document.addEventListener('visibilitychange', function () {
+//     if (document.visibilityState === 'visible') {
+//         // The tab has become visible so clear the now-stale Notification.
+//         n.close();
+//     }
+// });
 
 function autoClose(n) {
     try {

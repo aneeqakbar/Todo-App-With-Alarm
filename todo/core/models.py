@@ -19,6 +19,7 @@ class Todo(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField()
     checked = models.BooleanField(default=False)
+    timed = models.BooleanField(default=False)
     priority = models.CharField(max_length=2, choices=PRIORITY, default='M')
     time = models.DateTimeField(auto_now=False, auto_now_add=False)
 
