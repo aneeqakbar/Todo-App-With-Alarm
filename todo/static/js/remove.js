@@ -4,11 +4,11 @@ let row_alarm = document.querySelectorAll('.row-alarm');
 remove_forms.forEach(form => {
     form.addEventListener('submit', async (event) => {
         event.preventDefault()
-        let i = Number(form.getAttribute('data-index')) - 1;
+        let index = Number(form.getAttribute('data-index')) - 1;
         let url = form.getAttribute('data-url');
-        let todo_id = Number(form.getAttribute('data-id'));
+        let id = Number(form.getAttribute('data-id'));
 
-        let res = await removeFromDB(url, todo_id).then(res => {
+        let res = await removeFromDB(url, id).then(res => {
             return true
         }).catch(e => {
             console.log(e)
@@ -16,7 +16,7 @@ remove_forms.forEach(form => {
         })
 
         if (res) {
-            removeFromTable(i);
+            removeFromTable(index);
         }
 
     });
@@ -26,7 +26,7 @@ function removeFromTable(i) {
     row_alarm[i].remove();
 }
 
-function removeFromDB(url, todo_id) {
+function removeFromDB(url, id) {
     return new Promise((resolve, reject) => {
         $.ajax({
             url: url,
@@ -34,7 +34,7 @@ function removeFromDB(url, todo_id) {
             dataType: "json",
             type: "Delete",
             async: true,
-            data: JSON.stringify({ 'id': todo_id }),
+            data: JSON.stringify({ 'id': id }),
             success: function (res) {
                 resolve(true)
             },

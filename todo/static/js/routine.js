@@ -146,14 +146,6 @@ window.onload = () => {
 }
 
 
-// Update Timed Todo Row
-
-function updateTimed(row) { // row from alarm.js
-    row.classList.toggle('row-timed', true);
-}
-
-
-
 function getCookie(name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');

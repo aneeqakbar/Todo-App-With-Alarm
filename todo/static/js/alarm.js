@@ -4,9 +4,10 @@ let alarm_row = document.querySelectorAll(".row-alarm");
 // Initialize the Alarm Audio
 const alarmCtx = new AudioContext();
 let source = null;
+const ALARM_TIMEOUT = 50000; // timeout in ms
 
 let buffer = ''
-async function InitializeAlarm(alarmName = "", url = "/media/alarms/mixkit-short-rooster-crowing-2470.wav", index="") {
+async function InitializeAlarm(alarmName = "", url = "/media/alarms/rooster-crowing.wav", index = "") {
     try {
         source.disconnect()
     } catch (error) {
@@ -20,9 +21,10 @@ async function InitializeAlarm(alarmName = "", url = "/media/alarms/mixkit-short
         return err
     });
     source.buffer = buffer;
+    source.loop = true;
     source.connect(alarmCtx.destination);
     console.log('Alarm Changed')
-    
+
     if (alarmName) {
         setCookie("alarm", { 'alarmName': alarmName, 'url': url, 'index': index });
     }
@@ -44,39 +46,42 @@ document.getElementById('alarm-field').addEventListener('change', (event) => {
 
 
 // Filter the to_be_alarmed elements
-alarms_not_timed = Array.from(alarms).filter(elem => {
-    let alarm_timestamp = elem.getAttribute('data-time')
-    let timestamp = new Date().getTime() + Math.abs(new Date().getTimezoneOffset() * 60000)
-    if (Math.floor(alarm_timestamp) < Math.floor(timestamp / 1000)) {
-        elem.setAttribute('data-time', 'alarmed');
-        return false
-    }
-    return true
-})
+alarms_not_timed = filterAlarmNotTimed(alarms);
+
+function filterAlarmNotTimed(alarms) {
+    return Array.from(alarms).filter(elem => {
+        let alarm_timestamp = elem.getAttribute('data-time')
+        let timestamp = new Date().getTime() + Math.abs(new Date().getTimezoneOffset() * 60000)
+        if (Math.floor(alarm_timestamp) < Math.floor(timestamp / 1000)) {
+            elem.setAttribute('data-time', 'alarmed');
+            return false
+        }
+        return true
+    });
+}
 
 // Checks for alarming every second
+let timeout;
 setInterval(() => {
-    alarms_not_timed.forEach((element,index) => {
+    alarms_not_timed.forEach((element, index) => {
         let timestamp = new Date().getTime();
         let alarm_timestamp = element.getAttribute('data-time')
         let todo_title = element.getAttribute('data-title')
 
         timestamp += Math.abs(new Date().getTimezoneOffset() * 60000) // this gets the difference between local TZ and UTC in ms
         console.log(
-            Math.floor(alarm_timestamp) ,Math.floor(timestamp / 1000)
+            Math.floor(alarm_timestamp), Math.floor(timestamp / 1000)
         )
         if (Math.floor(alarm_timestamp) === Math.floor(timestamp / 1000)) {
             console.log(`Alarm Time for ${element}`)
-            source.loop = true;
             source.start();
-            let newNotification = createNotification("ARM (Times UP)!",`Hey, your todo: (${todo_title}) in timed up!`)
+            let newNotification = createNotification("ARM (Times UP)!", `Hey, your todo: (${todo_title}) in timed up!`)
             // newNotification.onclose = ()=>{
             //     console.log("closed")
             //     source.stop();
             // };
-            setTimeout(() => {
-                source.stop();
-            }, 10000);
+            
+            setAutoMute(source);
             element.setAttribute('data-time', 'alarmed')
             updateTimedAlarms();
         }
@@ -89,12 +94,24 @@ function updateTimedAlarms() {
         let alarm_timestamp = elem.getAttribute('data-time')
         return alarm_timestamp === "alarmed";
     })
-    console.log(alarms_timed,alarms_not_timed)
-    alarms_timed.forEach((element,index) => {
-        alarm_row[index].classList.toggle('row-timed', true);
+    alarms_timed.forEach((element, index) => {
+        try {
+            updateTimed(alarm_row[index]); // in todo.js
+        } catch (error) {
+            
+        }
+        // alarm_row[index].classList.toggle('row-timed', true);
     });
+    alarms_not_timed = filterAlarmNotTimed(alarms)
 }
 
+function setAutoMute(source) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+        console.log('stoped');
+        source.stop();
+    }, ALARM_TIMEOUT);
+}
 
 function fetchAlarm(audioCtx, url) {
     return new Promise((resolve, reject) => {
@@ -123,20 +140,14 @@ function fetchAlarm(audioCtx, url) {
 
 
 
-document.querySelector("#notification-model .close-btn").addEventListener('click',(event)=>{
+document.querySelector("#notification-model .close-btn").addEventListener('click', (event) => {
     try {
         source.stop();
     } catch (e) {
         console.log('Alarm already closed.')
     }
-    document.querySelector("#notification-model").classList.toggle("hidden",true);
+    document.querySelector("#notification-model").classList.toggle("hidden", true);
 })
-
-
-
-
-
-
 
 
 
